@@ -25,7 +25,7 @@ public final class Graphics {
     }
 
     public static String intColorToHex6(int color) {
-        return "#" + Integer.toHexString(color).toUpperCase().substring(2,7);
+        return "#" + Integer.toHexString(color).toUpperCase().substring(2, 7);
     }
 
     public static int lighten(int color, double fraction) {
@@ -52,7 +52,7 @@ public final class Graphics {
     }
 
     private static int darkenColor(int color, double fraction) {
-        return (int)Math.max(color - (color * fraction), 0);
+        return (int) Math.max(color - (color * fraction), 0);
     }
 
     private static int lightenColor(int color, double fraction) {

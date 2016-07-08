@@ -45,10 +45,10 @@ public class TagActivity extends AppCompatActivity implements ColorChooserDialog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tagsRef = FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("users")
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .child("tags");
+                .getReference()
+                .child("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("tags");
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_tag);
 
@@ -171,7 +171,7 @@ public class TagActivity extends AppCompatActivity implements ColorChooserDialog
     private void setTag() {
         tagKey = getIntent().getStringExtra("tag_key");
         if (tagKey == null) {
-            String[] colors = new String[]{"#F44336","#E91E63","#9C27B0","#673AB7","#3F51B5","#2196F3","#009688","#4CAF50","#FF5722","#795548","#607D8B"};
+            String[] colors = new String[]{"#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#009688", "#4CAF50", "#FF5722", "#795548", "#607D8B"};
             int idx = new Random().nextInt(colors.length);
             tag = new Tag().withIcon("label").withColor(colors[idx]);
             binding.setTag(tag);

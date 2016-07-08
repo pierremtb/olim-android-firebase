@@ -12,7 +12,8 @@ import com.pierrejacquier.olim.R;
 
 public class LoadingFragment extends Fragment {
 
-    public LoadingFragment() {}
+    public LoadingFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

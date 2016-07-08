@@ -216,7 +216,7 @@
                             android:layout_height="wrap_content"
                             android:textSize="16sp"
                             android:textColor="@color/colorSecondaryText"
-                            android:text='@{task.tagUid == null ? @string/no_tag : task.tag.hashName}'/>
+                            android:text='@{task.tag == null ? @string/no_tag : task.tag.hashName}'/>
                     </LinearLayout>
 
                 </LinearLayout>

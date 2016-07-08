@@ -20,10 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.activities.TagActivity;
 import com.pierrejacquier.olim.adapters.TagsAdapter;
-import com.pierrejacquier.olim.data.Tag;
 import com.pierrejacquier.olim.databinding.FragmentTagsBinding;
-
-import java.util.List;
 
 public class TagsFragment extends Fragment implements View.OnClickListener {
 
@@ -31,7 +28,8 @@ public class TagsFragment extends Fragment implements View.OnClickListener {
     private FragmentTagsBinding binding;
     private DatabaseReference tagsRef;
 
-    public TagsFragment() {}
+    public TagsFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,7 +86,7 @@ public class TagsFragment extends Fragment implements View.OnClickListener {
             }
         });
         binding.tagsRecyclerView.setAdapter(adapter);
-        binding.tagsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(),  LinearLayoutManager.VERTICAL, false));
+        binding.tagsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
     }
 
     @Override
@@ -116,9 +114,6 @@ public class TagsFragment extends Fragment implements View.OnClickListener {
         int id = v.getId();
     }
 
-    public interface OnFragmentInteractionListener {
-    }
-
     /**
      * Navigation
      */
@@ -129,6 +124,9 @@ public class TagsFragment extends Fragment implements View.OnClickListener {
         b.putString("tag_key", tagKey);
         intent.putExtras(b);
         startActivityForResult(intent, 0);
+    }
+
+    public interface OnFragmentInteractionListener {
     }
 
 }

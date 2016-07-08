@@ -14,6 +14,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +24,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -51,22 +55,20 @@ import java.util.List;
 public class MainActivity
         extends AppCompatActivity
         implements TasksFragment.OnFragmentInteractionListener,
-                    TagsFragment.OnFragmentInteractionListener {
-
-    private ActionBar actionBar;
-    private String currentFragmentName = null;
-    private Toolbar toolbar;
-    private ActivityMainBinding binding;
+        TagsFragment.OnFragmentInteractionListener {
 
     private final static int DRAWER_TASKS = 1;
     private final static int DRAWER_TAGS = 2;
     private final static int DRAWER_DIVIDER = 3;
     private final static int DRAWER_SETTINGS = 4;
-    private final static int DRAWER_ABOUT = 5;
-    private final static int DRAWER_SIGNOUT = 6;
-
+    private final static int DRAWER_ABOUT = 4;
+    private final static int DRAWER_SIGNOUT = 5;
     private static final int RC_SIGN_IN = 10;
-
+    private Menu actionsMenu;
+    private ActionBar actionBar;
+    private String currentFragmentName = null;
+    private Toolbar toolbar;
+    private ActivityMainBinding binding;
     private FirebaseAuth auth;
 
     @Override
@@ -81,7 +83,6 @@ public class MainActivity
         if (actionBar != null) {
             actionBar.setTitle("Tasks");
         }
-        showLoadingFragment();
 
         // Firebase Auth
         auth = FirebaseAuth.getInstance();
@@ -114,45 +115,64 @@ public class MainActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        // TODO: fix the missing Close action
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        SearchView.SearchAutoComplete theTextArea = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
-        theTextArea.setTextColor(getResources().getColor(R.color.colorPrimaryText));
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean opening) {
-                if (opening) {
-                    getTasksFragment().hideTaskAdder();
-                } else {
-                    getTasksFragment().showTaskAdder();
-                }
-            }
-        });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                List<Task> tasks = new ArrayList<>();
-                List<Task> filteredTasks = new ArrayList<>();
-                if (newText.equals("")) {
-                    filteredTasks = tasks;
-                } else {
-                    for (Task task : tasks) {
-                        if (task.getTitle() != null &&
-                            task.getTitle().toUpperCase().contains(newText.toUpperCase())) {
-                            filteredTasks.add(task);
-                        }
-                    }
-                }
-                return false;
-            }
-        });
+        actionsMenu = menu;
+//                .getReference().child("users")
+//                .child(auth.getCurrentUser().getUid())
+//                .child("tasks")
+//                .addValueEventListener(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                            Task task = child.getValue(Task.class);
+//                            task.setKey(child.getKey());
+//                            tasks.add(task);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
+//        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+//
+//        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        SearchView.SearchAutoComplete theTextArea = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+//        theTextArea.setTextColor(getResources().getColor(R.color.colorPrimaryText));
+//        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View view, boolean opening) {
+//                if (opening) {
+//                    getTasksFragment().hideTaskAdder();
+//                } else {
+//                    getTasksFragment().showTaskAdder();
+//                }
+//            }
+//        });
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                List<Task> filteredTasks = new ArrayList<>();
+//                if (newText.equals("")) {
+//                    filteredTasks = tasks;
+//                } else {
+//                    for (Task task : tasks) {
+//                        if (task.getTitle() != null &&
+//                                task.getTitle().toUpperCase().contains(newText.toUpperCase())) {
+//                            filteredTasks.add(task);
+//                        }
+//                    }
+//                }
+//                Log.e("iiiii", filteredTasks.toString());
+//                return false;
+//            }
+//        });
         return true;
     }
 
@@ -167,12 +187,13 @@ public class MainActivity
                     tasksFragment.showTagsFilteringDialog();
                 }
                 break;
-            case R.id.action_search:
-                if (currentFragmentName.equals("TasksFragment")) {
-                    getTasksFragment().hideTaskAdder();
-                }
+//            case R.id.action_search:
+//                if (currentFragmentName.equals("TasksFragment")) {
+//                    getTasksFragment().hideTaskAdder();
+//                }
+//                break;
+            default:
                 break;
-            default: break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -210,16 +231,19 @@ public class MainActivity
         actionBar.setTitle("Tasks");
         currentFragmentName = "TasksFragment";
         ft.commit();
+        if (actionsMenu != null) {
+            actionsMenu.getItem(0).setVisible(true);
+        }
     }
 
     private void showTagsFragment() {
-//      TODO: make Filter and Search actions disappear on TagsFragment
         Fragment TagsFG = new TagsFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.mainFrame, TagsFG);
         actionBar.setTitle("Tags");
         currentFragmentName = "TagsFragment";
         ft.commit();
+        actionsMenu.getItem(0).setVisible(false);
     }
 
     private void showLoadingFragment() {
@@ -269,21 +293,21 @@ public class MainActivity
 
     private void buildDrawer() {
         AccountHeader headerResult = new AccountHeaderBuilder()
-                    .withActivity(this)
-                    .withHeaderBackground(R.drawable.background)
-                    .addProfiles(
-                            new ProfileDrawerItem()
-                                    .withName(auth.getCurrentUser().getDisplayName())
-                                    .withEmail(auth.getCurrentUser().getEmail())
-                                    .withIcon(auth.getCurrentUser().getPhotoUrl())
-                    )
-                    .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                        @Override
-                        public boolean onProfileChanged(View view, IProfile profile, boolean current) {
-                            return false;
-                        }
-                    })
-                    .build();
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.background)
+                .addProfiles(
+                        new ProfileDrawerItem()
+                                .withName(auth.getCurrentUser().getDisplayName())
+                                .withEmail(auth.getCurrentUser().getEmail())
+                                .withIcon(auth.getCurrentUser().getPhotoUrl())
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+                        return false;
+                    }
+                })
+                .build();
 
         new DrawerBuilder()
                 .withActivity(this)
@@ -300,11 +324,11 @@ public class MainActivity
                                 .withName(R.string.navigation_drawer_tags)
                                 .withIcon(GoogleMaterial.Icon.gmd_label_outline),
                         new DividerDrawerItem().withIdentifier(DRAWER_DIVIDER),
-                        new SecondaryDrawerItem()
-                                .withIdentifier(DRAWER_SETTINGS)
-                                .withName(R.string.navigation_drawer_settings)
-                                .withIcon(GoogleMaterial.Icon.gmd_settings)
-                                .withSelectable(false),
+//                        new SecondaryDrawerItem()
+//                                .withIdentifier(DRAWER_SETTINGS)
+//                                .withName(R.string.navigation_drawer_settings)
+//                                .withIcon(GoogleMaterial.Icon.gmd_settings)
+//                                .withSelectable(false),
                         new SecondaryDrawerItem()
                                 .withIdentifier(DRAWER_ABOUT)
                                 .withName(R.string.navigation_drawer_about)
@@ -326,26 +350,27 @@ public class MainActivity
                             case DRAWER_TAGS:
                                 showTagsFragment();
                                 break;
-                            case DRAWER_SETTINGS:
-                                launchSettings();
-                                break;
+//                            case DRAWER_SETTINGS:
+//                                launchSettings();
+//                                break;
                             case DRAWER_ABOUT:
                                 launchAbout();
                                 break;
                             case DRAWER_SIGNOUT:
                                 signOut();
                                 break;
-                            default: break;
+                            default:
+                                break;
                         }
                         return false;
                     }
                 })
                 .build();
 
-            // TODO: replace with a local image or account cover
-            ImageView coverView = headerResult.getHeaderBackgroundView();
-            Glide.with(this)
-                    .load("http://www.elementaryos-fr.org/wp-content/uploads/2013/09/wallpaper-2132913.jpg")
-                    .into(coverView);
+        // TODO: replace with a local image or account cover
+        ImageView coverView = headerResult.getHeaderBackgroundView();
+        Glide.with(this)
+                .load("http://www.elementaryos-fr.org/wp-content/uploads/2013/09/wallpaper-2132913.jpg")
+                .into(coverView);
     }
 }

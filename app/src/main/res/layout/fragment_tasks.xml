@@ -16,6 +16,14 @@
         android:layout_height="match_parent"
         tools:context="com.pierrejacquier.olim.fragments.TasksFragment">
 
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+            android:id="@+id/progress_view"
+            android:layout_width="80dp"
+            android:layout_gravity="center"
+            android:layout_height="80dp"
+            app:cpv_animAutostart="true"
+            app:cpv_indeterminate="true" />
+
         <!-- TasksList -->
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/tasksNestedScrollView"
@@ -444,6 +452,7 @@
                 <LinearLayout
                     android:id="@+id/noTasksLayout"
                     android:layout_width="match_parent"
+                    android:visibility="gone"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 

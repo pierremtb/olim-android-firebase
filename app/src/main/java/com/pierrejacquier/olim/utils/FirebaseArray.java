@@ -27,15 +27,9 @@ import java.util.ArrayList;
  * This class implements an array-like collection on top of a Firebase location.
  */
 public class FirebaseArray implements ChildEventListener {
-    public interface OnChangedListener {
-        enum EventType { Added, Changed, Removed, Moved }
-        void onChanged(EventType type, int index, int oldIndex);
-    }
-
     private Query mQuery;
     private OnChangedListener mListener;
     private ArrayList<DataSnapshot> mSnapshots;
-
     public FirebaseArray(Query ref) {
         mQuery = ref;
         mSnapshots = new ArrayList<DataSnapshot>();
@@ -50,6 +44,7 @@ public class FirebaseArray implements ChildEventListener {
         return mSnapshots.size();
 
     }
+
     public DataSnapshot getItem(int index) {
         return mSnapshots.get(index);
     }
@@ -96,20 +91,26 @@ public class FirebaseArray implements ChildEventListener {
         notifyChangedListeners(OnChangedListener.EventType.Moved, newIndex, oldIndex);
     }
 
-    public void onCancelled(DatabaseError firebaseError) {
-        // TODO: what do we do with this?
-    }
-    // End of ChildEventListener methods
+    public void onCancelled(DatabaseError firebaseError) {}
 
     public void setOnChangedListener(OnChangedListener listener) {
         mListener = listener;
     }
+    // End of ChildEventListener methods
+
     protected void notifyChangedListeners(OnChangedListener.EventType type, int index) {
         notifyChangedListeners(type, index, -1);
     }
+
     protected void notifyChangedListeners(OnChangedListener.EventType type, int index, int oldIndex) {
         if (mListener != null) {
             mListener.onChanged(type, index, oldIndex);
         }
+    }
+
+    public interface OnChangedListener {
+        void onChanged(EventType type, int index, int oldIndex);
+
+        enum EventType {Added, Changed, Removed, Moved}
     }
 }

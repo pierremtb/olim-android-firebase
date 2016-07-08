@@ -57,6 +57,10 @@ public class User {
         return fullName;
     }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -68,16 +72,16 @@ public class User {
         return this.tags;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
-
     public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
 
     public List<Task> getTasks() {
         return this.getTasks(null, false);
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public List<Task> getTasks(boolean excludeDone) {
@@ -92,7 +96,7 @@ public class User {
         if (this.tasks == null) {
             return new ArrayList<>();
         }
-        
+
         if (excludeDone) {
             List<Task> notDoneTasks = new ArrayList<>();
             for (Task task : this.tasks) {
@@ -102,7 +106,7 @@ public class User {
             }
             return notDoneTasks;
         }
-        
+
         return this.tasks;
     }
 
@@ -125,7 +129,7 @@ public class User {
     public List<Task> getLaterTasks() {
         return getLaterTasks(null);
     }
-    
+
     public List<Task> getOverdueTasks(Tag tag) {
         return getOverdueTasks(tag, false);
     }
@@ -175,7 +179,6 @@ public class User {
         return getTomorrowTasks(tag, false);
     }
 
-
     public List<Task> getTomorrowTasks(Tag tag, boolean excludeDone) {
         List<Task> tasks = this.getTasks(tag, excludeDone);
         List<Task> tomorrowTasks = new ArrayList<>();
@@ -197,7 +200,6 @@ public class User {
     public List<Task> getInTheNextSevenDaysTasks(Tag tag) {
         return getInTheNextSevenDaysTasks(tag, false);
     }
-
 
     public List<Task> getInTheNextSevenDaysTasks(Tag tag, boolean excludeDone) {
         List<Task> tasks = this.getTasks(tag, excludeDone);
@@ -225,7 +227,6 @@ public class User {
         return getLaterTasks(tag, false);
     }
 
-
     public List<Task> getLaterTasks(Tag tag, boolean excludeDone) {
         List<Task> tasks = this.getTasks(tag, excludeDone);
         List<Task> laterTasks = new ArrayList<>();
@@ -248,24 +249,21 @@ public class User {
     public String toString() {
         StringBuilder result = new StringBuilder();
         String newLine = System.getProperty("line.separator");
-        result.append( this.getClass().getName() );
-        result.append( " Object {" );
+        result.append(this.getClass().getName());
+        result.append(" Object {");
         result.append(newLine);
         Field[] fields = this.getClass().getDeclaredFields();
-        for ( Field field : fields  ) {
+        for (Field field : fields) {
             result.append("  ");
             try {
-                result.append( field.getName() );
+                result.append(field.getName());
                 result.append(": ");
-                result.append( field.get(this) );
-            } catch ( IllegalAccessException ex ) {  }
+                result.append(field.get(this));
+            } catch (IllegalAccessException ex) {
+            }
             result.append(newLine);
         }
         result.append("}");
         return result.toString();
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 }

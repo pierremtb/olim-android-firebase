@@ -23,7 +23,7 @@ public class TagsListAdapter extends BaseAdapter {
     private final View.OnClickListener callback;
     FirebaseArray snapshots;
 
-    public TagsListAdapter(Context context, Query ref, View.OnClickListener callback ) {
+    public TagsListAdapter(Context context, Query ref, View.OnClickListener callback) {
         snapshots = new FirebaseArray(ref);
         snapshots.setOnChangedListener(new FirebaseArray.OnChangedListener() {
             @Override
@@ -53,7 +53,9 @@ public class TagsListAdapter extends BaseAdapter {
         return snapshots.getItem(i).getValue(Tag.class);
     }
 
-    public DatabaseReference getRef(int position) { return snapshots.getItem(position).getRef(); }
+    public DatabaseReference getRef(int position) {
+        return snapshots.getItem(position).getRef();
+    }
 
     @Override
     public long getItemId(int i) {
@@ -82,7 +84,7 @@ public class TagsListAdapter extends BaseAdapter {
         if (tag.getIcon() != null) {
             try {
                 tagIcon.icon(GoogleMaterial.Icon.valueOf("gmd_" + tag.getIcon()));
-            } catch (Exception e ) {
+            } catch (Exception e) {
                 tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
             }
         } else {

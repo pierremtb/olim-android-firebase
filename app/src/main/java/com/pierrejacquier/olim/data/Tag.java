@@ -24,14 +24,14 @@ public class Tag {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getHashName() {
         return "#" + name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    
     public Tag withName(String name) {
         setName(name);
         return this;
@@ -40,7 +40,7 @@ public class Tag {
     public String getComments() {
         return comments;
     }
-    
+
     public void setComments(String comments) {
         this.comments = comments;
     }
@@ -68,12 +68,12 @@ public class Tag {
         return icon;
     }
 
-    public String getIconicsName() {
-        return "gmd-" + this.icon.replace("_", "-").replace(" ", "-").toLowerCase();
-    }
-
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public String getIconicsName() {
+        return "gmd-" + this.icon.replace("_", "-").replace(" ", "-").toLowerCase();
     }
 
     public Tag withIcon(String icon) {
@@ -109,17 +109,18 @@ public class Tag {
     public String toString() {
         StringBuilder result = new StringBuilder();
         String newLine = System.getProperty("line.separator");
-        result.append( this.getClass().getName() );
-        result.append( " Object {" );
+        result.append(this.getClass().getName());
+        result.append(" Object {");
         result.append(newLine);
         Field[] fields = this.getClass().getDeclaredFields();
-        for ( Field field : fields  ) {
+        for (Field field : fields) {
             result.append("  ");
             try {
-                result.append( field.getName() );
+                result.append(field.getName());
                 result.append(": ");
-                result.append( field.get(this) );
-            } catch ( IllegalAccessException ex ) {  }
+                result.append(field.get(this));
+            } catch (IllegalAccessException ex) {
+            }
             result.append(newLine);
         }
         result.append("}");

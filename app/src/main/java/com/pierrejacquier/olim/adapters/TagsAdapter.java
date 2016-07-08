@@ -22,15 +22,11 @@ import com.pierrejacquier.olim.utils.Graphics;
 public class TagsAdapter extends
         RecyclerView.Adapter<TagsAdapter.ViewHolder> {
 
-    FirebaseArray mSnapshots;
     public int hintColor;
     public IconicsDrawable tagIcon;
+    FirebaseArray mSnapshots;
     private View.OnClickListener itemViewOnClickListener;
     private EventListener eventListener;
-
-    public interface EventListener {
-        void onTagClicked(DatabaseReference tagRef);
-    }
 
     public TagsAdapter(Query ref) {
         mSnapshots = new FirebaseArray(ref);
@@ -69,19 +65,6 @@ public class TagsAdapter extends
         this((Query) ref);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private ItemTagBinding binding;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            binding = DataBindingUtil.bind(itemView);
-        }
-
-        public ItemTagBinding getBinding() {
-            return binding;
-        }
-    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -112,7 +95,7 @@ public class TagsAdapter extends
         if (tag.getIcon() != null) {
             try {
                 tagIcon.icon(GoogleMaterial.Icon.valueOf("gmd_" + tag.getIcon()));
-            } catch (Exception e ) {
+            } catch (Exception e) {
                 tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
             }
         } else {
@@ -121,7 +104,6 @@ public class TagsAdapter extends
 
         viewHolder.getBinding().tagIconButton.setImageDrawable(tagIcon);
     }
-
 
     @Override
     public int getItemCount() {
@@ -132,7 +114,9 @@ public class TagsAdapter extends
         return mSnapshots.getItem(position).getValue(Tag.class);
     }
 
-    public DatabaseReference getRef(int position) { return mSnapshots.getItem(position).getRef(); }
+    public DatabaseReference getRef(int position) {
+        return mSnapshots.getItem(position).getRef();
+    }
 
     @Override
     public long getItemId(int position) {
@@ -146,7 +130,25 @@ public class TagsAdapter extends
             eventListener.onTagClicked(getRef(position));
         }
     }
+
     public void setEventListener(EventListener eventListener) {
         this.eventListener = eventListener;
+    }
+
+    public interface EventListener {
+        void onTagClicked(DatabaseReference tagRef);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private ItemTagBinding binding;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            binding = DataBindingUtil.bind(itemView);
+        }
+
+        public ItemTagBinding getBinding() {
+            return binding;
+        }
     }
 }

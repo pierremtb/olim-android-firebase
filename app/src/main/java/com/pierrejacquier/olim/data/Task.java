@@ -1,7 +1,6 @@
 package com.pierrejacquier.olim.data;
 
 import android.database.Cursor;
-import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -18,6 +17,7 @@ public class Task {
     private String tagKey;
 
     private Tag tag;
+    private String key;
 
     public Task() {
     }
@@ -63,6 +63,14 @@ public class Task {
 
     public void setTag(Tag tag) {
         this.tag = tag;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String dispDueDate() {
@@ -113,26 +121,25 @@ public class Task {
         if (dueDate != 0) {
             task.put("dueDate", this.dueDate);
         }
-        if (done) {
-            task.put("done", this.done);
-        }
+        task.put("done", this.done);
         return task;
     }
 
     public String toString() {
         StringBuilder result = new StringBuilder();
         String newLine = System.getProperty("line.separator");
-        result.append( this.getClass().getName() );
-        result.append( " Object {" );
+        result.append(this.getClass().getName());
+        result.append(" Object {");
         result.append(newLine);
         Field[] fields = this.getClass().getDeclaredFields();
-        for ( Field field : fields  ) {
+        for (Field field : fields) {
             result.append("  ");
             try {
-                result.append( field.getName() );
+                result.append(field.getName());
                 result.append(": ");
-                result.append( field.get(this) );
-            } catch ( IllegalAccessException ex ) {  }
+                result.append(field.get(this));
+            } catch (IllegalAccessException ex) {
+            }
             result.append(newLine);
         }
         result.append("}");

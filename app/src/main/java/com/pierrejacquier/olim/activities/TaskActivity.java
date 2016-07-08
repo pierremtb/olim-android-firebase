@@ -43,6 +43,7 @@ import java.util.List;
 
 public class TaskActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public MaterialDialog tagsFilteringDialog;
     private Task task;
     private List<Tag> tags;
     private String taskKey;
@@ -50,7 +51,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     private ActionBar actionBar;
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
-    public MaterialDialog tagsFilteringDialog;
     private DatabaseReference tasksRef;
     private DatabaseReference tagsRef;
 
@@ -58,10 +58,10 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tasksRef = FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("users")
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .child("tasks");
+                .getReference()
+                .child("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("tasks");
         tagsRef = tasksRef.getParent().child("tags");
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_task);
@@ -179,7 +179,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             tagsFilteringDialog.dismiss();
             task.setTag(tag);
             task.setTagKey(tag.getKey());
-            Log.d("auieie", task.toString());
             binding.setTask(task);
             applyTaskColor();
             applyTaskIcon();
@@ -206,10 +205,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        if (task.getTagKey() == null) {
-            return;
-        }
-
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(task.getTag().getColor())));
         binding.toolbar2.setBackgroundColor(Color.parseColor(task.getTag().getColor()));
         if (Build.VERSION.SDK_INT >= 21) {
@@ -221,9 +216,6 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void applyTaskIcon() {
-        if (task.getTagKey() == null) {
-            return;
-        }
         if (task.getTag() == null) {
             return;
         }
@@ -274,10 +266,30 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         tasksRef.child(taskKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                task = dataSnapshot.getValue(Task.class);
-                binding.setTask(task);
-                applyTaskColor();
-                applyTaskIcon();
+                if (dataSnapshot.exists()) {
+                    task = dataSnapshot.getValue(Task.class);
+                    binding.setTask(task);
+                    if (task.getTagKey() != null) {
+                        tagsRef.child(task.getTagKey()).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    task.setTag(dataSnapshot.getValue(Tag.class));
+                                    binding.setTask(task);
+                                    applyTaskColor();
+                                    applyTaskIcon();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                } else {
+                    finish();
+                }
             }
 
             @Override

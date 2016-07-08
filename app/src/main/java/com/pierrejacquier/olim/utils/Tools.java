@@ -27,7 +27,7 @@ public final class Tools {
 
     public static String dispDuration(Object str) {
         int sec = 0;
-        try{
+        try {
             sec = Integer.parseInt(str.toString());
         } catch (Exception e) {
             return "";
@@ -40,7 +40,8 @@ public final class Tools {
         long timestamp = 0;
         try {
             timestamp = t.get("$date");
-        } catch (Exception e ) {}
+        } catch (Exception e) {
+        }
         Date date = new Date(timestamp);
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         return formatter.format(date);
@@ -55,21 +56,27 @@ public final class Tools {
         try {
             Long t = (Long) dateObj;
             return new Date(t);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         HashMap<String, Long> t = (HashMap<String, Long>) dateObj;
         long timestamp = 0;
         try {
             timestamp = t.get("$date");
-        } catch (Exception e ) {}
+        } catch (Exception e) {
+        }
         return new Date(timestamp);
     }
 
     public static String dispType(String t) {
         switch (t) {
-            case "wk": return "Entrainement";
-            case "rc": return "Compétition";
-            case "nth": return "Repos";
-            default: return "";
+            case "wk":
+                return "Entrainement";
+            case "rc":
+                return "Compétition";
+            case "nth":
+                return "Repos";
+            default:
+                return "";
         }
     }
 
@@ -95,7 +102,9 @@ public final class Tools {
                 default:
                     return "";
             }
-        } catch(Exception e ) { return "";}
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public static String getString(HashMap<String, ?> obj, String key) {
@@ -127,30 +136,30 @@ public final class Tools {
     }
 
     public static HashMap<String, Object> getHashMap(HashMap<String, ?> obj, String key) {
-        if(!obj.containsKey(key)) {
+        if (!obj.containsKey(key)) {
             return null;
         }
         try {
             return (HashMap<String, Object>) obj.get(key);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
 
     public static String[] getStringsArray(HashMap<String, ?> obj, String key) {
         String[] r = {};
-        if(obj.containsKey(key)) {
+        if (obj.containsKey(key)) {
             ArrayList<String> a = (ArrayList<String>) obj.get(key);
             return a.toArray(new String[a.size()]);
         } else {
-          return r;
+            return r;
         }
     }
 
     public static Object getObject(HashMap<String, ?> obj, String key, boolean json) {
-        if(obj.containsKey(key)) {
+        if (obj.containsKey(key)) {
             return obj.get(key);
-        } else if(json) {
+        } else if (json) {
             return new HashMap<String, Object>();
         } else {
             return new Object();
@@ -214,10 +223,10 @@ public final class Tools {
         }
     }
 
-    public static String toCamelCase(String s){
+    public static String toCamelCase(String s) {
         String[] parts = s.split("_");
         String camelCaseString = "";
-        for (String part : parts){
+        for (String part : parts) {
             camelCaseString = camelCaseString + toProperCase(part);
         }
         return Character.toLowerCase(camelCaseString.charAt(0)) + camelCaseString.substring(1);

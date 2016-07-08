@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 
 public class CustomLinearLayoutManager extends LinearLayoutManager {
 
-    public CustomLinearLayoutManager(Context context, int orientation, boolean reverseLayout)    {
+    private int[] mMeasuredDimension = new int[2];
+
+    public CustomLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
         super(context, orientation, reverseLayout);
     }
-
-    private int[] mMeasuredDimension = new int[2];
 
     @Override
     public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
@@ -81,7 +81,7 @@ public class CustomLinearLayoutManager extends LinearLayoutManager {
             int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec,
                     getPaddingLeft() + getPaddingRight() + getDecoratedLeft(view) + getDecoratedRight(view), p.width);
             int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec,
-                    getPaddingTop() + getPaddingBottom() + getPaddingBottom() + getDecoratedBottom(view) , p.height);
+                    getPaddingTop() + getPaddingBottom() + getPaddingBottom() + getDecoratedBottom(view), p.height);
             view.measure(childWidthSpec, childHeightSpec);
 
             // Get decorated measurements

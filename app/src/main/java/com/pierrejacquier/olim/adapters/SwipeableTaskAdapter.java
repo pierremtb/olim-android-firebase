@@ -3,6 +3,7 @@ package com.pierrejacquier.olim.adapters;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractSwipeableItemView
 import com.h6ah4i.android.widget.advrecyclerview.utils.RecyclerViewAdapterUtils;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.materialize.color.Material;
 import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.data.Tag;
 import com.pierrejacquier.olim.data.Task;
@@ -34,48 +36,19 @@ public class SwipeableTaskAdapter
         implements SwipeableItemAdapter<SwipeableTaskAdapter.TaskViewHolder> {
 
     private FirebaseArray snapshots;
-
-    private interface Swipeable extends SwipeableItemConstants {}
-
     private EventListener eventListener;
     private View.OnClickListener clickListener;
     private View.OnClickListener swipeableViewContainerOnClickListener;
-
     private int hintColor;
+    private int primaryColor;
     private IconicsDrawable tagIcon;
-
-    public interface EventListener {
-        void onItemRemoved(DatabaseReference taskRef, Task task);
-
-        void onItemPinned(DatabaseReference taskRef, Task task);
-
-        void onItemViewClicked(DatabaseReference taskRef);
-    }
-
-    public static class TaskViewHolder extends AbstractSwipeableItemViewHolder {
-        private ItemTaskBinding binding;
-
-        public TaskViewHolder(View v) {
-            super(v);
-            binding = DataBindingUtil.bind(v);
-        }
-
-        public ItemTaskBinding getBinding() {
-            return binding;
-        }
-
-        @Override
-        public View getSwipeableContainerView() {
-            return binding.taskContainer;
-        }
-    }
-
     public SwipeableTaskAdapter(Query ref) {
         snapshots = new FirebaseArray(ref);
 
         snapshots.setOnChangedListener(new FirebaseArray.OnChangedListener() {
             @Override
             public void onChanged(EventType type, final int index, int oldIndex) {
+                eventListener.onDataAdded();
                 switch (type) {
                     case Added:
                         notifyItemInserted(index);
@@ -138,13 +111,14 @@ public class SwipeableTaskAdapter
 
     @Override
     public int getItemViewType(int position) {
-        return R.layout.item_task;
+        return position;
     }
 
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         hintColor = parent.getContext().getResources().getColor(R.color.colorHintText);
+        primaryColor = parent.getContext().getResources().getColor(R.color.colorPrimaryText);
         tagIcon = new IconicsDrawable(parent.getContext()).sizeDp(20).color(Color.WHITE);
         final View v = inflater.inflate(R.layout.item_task, parent, false);
         return new TaskViewHolder(v);
@@ -152,41 +126,54 @@ public class SwipeableTaskAdapter
 
     @Override
     public void onBindViewHolder(final TaskViewHolder holder, int position) {
+
         final Task task = getItem(position);
-        holder.getBinding().setTask(task);
-        holder.getBinding().executePendingBindings();
+        final ItemTaskBinding binding = holder.getBinding();
+        final IconicsDrawable myTagIcon = tagIcon;
 
-        holder.getBinding().taskLayout.setOnClickListener(clickListener);
+
+        binding.setTask(task);
+        binding.taskLayout.setOnClickListener(clickListener);
+        binding.taskContainer.setOnClickListener(swipeableViewContainerOnClickListener);
+
         holder.itemView.setOnClickListener(clickListener);
-        holder.getBinding().taskContainer.setOnClickListener(swipeableViewContainerOnClickListener);
 
+        // Define transparency regarding done status
+        if (task.isDone()) {
+            binding.taskIconButton.setAlpha(Float.valueOf("0.6"));
+            binding.taskPrimaryText.setTextColor(hintColor);
+        } else {
+            binding.taskIconButton.setAlpha(Float.valueOf("1"));
+            binding.taskPrimaryText.setTextColor(primaryColor);
+        }
 
+        // Define color and icon regarding tag
         if (task.getTagKey() != null) {
             getRef(position).getParent().getParent()
                     .child("tags").child(task.getTagKey())
-                    .addValueEventListener(new ValueEventListener() {
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
                                 Tag tag = dataSnapshot.getValue(Tag.class);
                                 if (!task.isDone()) {
                                     if (tag.getColor() != null) {
-                                        holder.getBinding().taskIconButton
+                                        binding.taskIconButton
                                                 .setBackgroundDrawable(Graphics.createRoundDrawable(tag.getColor()));
                                     }
                                 } else if (tag.getColor() != null) {
-                                    tagIcon.color(Color.parseColor(tag.getColor()));
+                                    myTagIcon.color(Color.parseColor(tag.getColor()));
                                 } else {
-                                    tagIcon.color(hintColor);
+                                    myTagIcon.color(hintColor);
                                 }
                                 if (tag.getIcon() != null) {
                                     try {
-                                        tagIcon.icon(tag.getIconicsName());
+                                        myTagIcon.icon(tag.getIconicsName());
                                     } catch (Exception e) {
-                                        tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
+                                        myTagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
                                     }
                                 } else {
-                                    tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
+                                    myTagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
                                 }
                             }
                         }
@@ -197,21 +184,21 @@ public class SwipeableTaskAdapter
                         }
                     });
         } else {
-            tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
+            myTagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
             if (task.isDone()) {
-                tagIcon.color(hintColor);
+                myTagIcon.color(hintColor);
+                binding.taskIconButton.setBackgroundDrawable(
+                        Graphics.createRoundDrawable("#00000000")
+                );
             } else {
-                holder.getBinding().taskIconButton.setBackgroundDrawable(
+                myTagIcon.color(Color.WHITE);
+                binding.taskIconButton.setBackgroundDrawable(
                         Graphics.createRoundDrawable(Graphics.intColorToHex(hintColor))
                 );
             }
         }
-        if (task.isDone()) {
-            holder.getBinding().taskIconButton.setAlpha(Float.valueOf("0.6"));
-            holder.getBinding().taskPrimaryText.setTextColor(hintColor);
-        }
 
-        holder.getBinding().taskIconButton.setImageDrawable(tagIcon);
+        binding.taskIconButton.setImageDrawable(myTagIcon);
 
         final int swipeState = holder.getSwipeStateFlags();
 
@@ -226,7 +213,7 @@ public class SwipeableTaskAdapter
                 bgResId = R.drawable.bg_item_normal_state;
             }
 
-            holder.getBinding().taskContainer.setBackgroundResource(bgResId);
+            binding.taskContainer.setBackgroundResource(bgResId);
         }
 
         holder.setSwipeItemHorizontalSlideAmount(0);
@@ -241,7 +228,9 @@ public class SwipeableTaskAdapter
         return snapshots.getItem(position).getValue(Task.class);
     }
 
-    public DatabaseReference getRef(int position) { return snapshots.getItem(position).getRef(); }
+    public DatabaseReference getRef(int position) {
+        return snapshots.getItem(position).getRef();
+    }
 
     @Override
     public long getItemId(int position) {
@@ -296,9 +285,40 @@ public class SwipeableTaskAdapter
         this.eventListener = eventListener;
     }
 
+    private interface Swipeable extends SwipeableItemConstants {
+    }
+
+    public interface EventListener {
+        void onDataAdded();
+
+        void onItemRemoved(DatabaseReference taskRef, Task task);
+
+        void onItemPinned(DatabaseReference taskRef, Task task);
+
+        void onItemViewClicked(DatabaseReference taskRef);
+    }
+
+    public static class TaskViewHolder extends AbstractSwipeableItemViewHolder {
+        private ItemTaskBinding binding;
+
+        public TaskViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
+        }
+
+        public ItemTaskBinding getBinding() {
+            return binding;
+        }
+
+        @Override
+        public View getSwipeableContainerView() {
+            return binding.taskContainer;
+        }
+    }
+
     private static class SwipeLeftResultAction extends SwipeResultActionMoveToSwipedDirection {
-        private SwipeableTaskAdapter mAdapter;
         private final int mPosition;
+        private SwipeableTaskAdapter mAdapter;
         private boolean mSetPinned;
 
         SwipeLeftResultAction(SwipeableTaskAdapter adapter, int position) {
@@ -330,8 +350,8 @@ public class SwipeableTaskAdapter
     }
 
     private static class SwipeRightResultAction extends SwipeResultActionRemoveItem {
-        private SwipeableTaskAdapter mAdapter;
         private final int mPosition;
+        private SwipeableTaskAdapter mAdapter;
 
         SwipeRightResultAction(SwipeableTaskAdapter adapter, int position) {
             mAdapter = adapter;
@@ -343,6 +363,8 @@ public class SwipeableTaskAdapter
             super.onPerformAction();
 //            mAdapter.tasks.remove(mPosition);
 //            mAdapter.notifyItemRemoved(mPosition);
+            mAdapter.eventListener.onItemRemoved(mAdapter.getRef(mPosition), mAdapter.getItem(mPosition));
+            mAdapter.notifyItemChanged(mPosition, null);
         }
 
         @Override
@@ -350,7 +372,8 @@ public class SwipeableTaskAdapter
             super.onSlideAnimationEnd();
 
             if (mAdapter.eventListener != null) {
-                mAdapter.eventListener.onItemRemoved(mAdapter.getRef(mPosition), mAdapter.getItem(mPosition));
+//                mAdapter.eventListener.onItemRemoved(mAdapter.getRef(mPosition), mAdapter.getItem(mPosition));
+//                mAdapter.notifyItemChanged(mPosition);
             }
         }
 
@@ -362,8 +385,8 @@ public class SwipeableTaskAdapter
     }
 
     private static class UnpinResultAction extends SwipeResultActionDefault {
-        private SwipeableTaskAdapter mAdapter;
         private final int mPosition;
+        private SwipeableTaskAdapter mAdapter;
 
         UnpinResultAction(SwipeableTaskAdapter adapter, int position) {
             mAdapter = adapter;
