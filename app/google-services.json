@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "842135316032",
+    "firebase_url": "https://olim-1342.firebaseio.com",
+    "project_id": "olim-1342",
+    "storage_bucket": "olim-1342.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842135316032:android:00d1d149fc59f9ac",
+        "android_client_info": {
+          "package_name": "com.pierrejacquier.olim"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "842135316032-klf8uv8uid0noi1lmsb8h769b1n83t6r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pierrejacquier.olim",
+            "certificate_hash": "A5487493C3EEFC34E968A8B61EAE530FA255F6FA"
+          }
+        },
+        {
+          "client_id": "842135316032-p650au3b49ve5pviubucmci7mjmis7j5.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "842135316032-7mj696hhc0o8aqqjm0lgd5p5uof68te8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBH0I8OnAia8O0Q1p9SCS-H7YRwv3SuxQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "842135316032-p650au3b49ve5pviubucmci7mjmis7j5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

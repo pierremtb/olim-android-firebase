@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="tag"
+            type="com.pierrejacquier.olim.data.Tag" />
+    </data>
+
+<android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:id="@+id/workoutTile"
+    android:background="@drawable/background"
+    android:clickable="true"
+    android:layout_height="72dp"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="81dp">
+
+    <ImageButton
+        android:id="@+id/tagIconButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_label_outline"
+        android:tint="@color/white"
+        android:background="@null"
+        android:layout_centerVertical="true"
+        android:scaleType="center"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp"
+        app:layout_constraintLeft_toLeftOf="@+id/workoutTile"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        tools:layout_constraintLeft_creator="0"
+        app:layout_constraintTop_toTopOf="@+id/workoutTile"
+        android:layout_marginTop="16dp"
+        tools:layout_constraintTop_creator="0"
+        app:layout_constraintBottom_toBottomOf="@+id/workoutTile"
+        android:layout_marginBottom="16dp"
+        tools:layout_constraintBottom_creator="0"
+        app:layout_constraintVertical_bias="0.56" />
+
+    <TextView
+        android:id="@+id/tagPrimaryText"
+        android:layout_height="20dp"
+        android:text="@{tag.hashName}"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="@dimen/list_tile_primary_text"
+        tools:layout_editor_absoluteX="73dp"
+        tools:layout_editor_absoluteY="16dp"
+        android:layout_width="248dp"
+        app:layout_constraintLeft_toLeftOf="@+id/tagSecondaryText"
+        tools:layout_constraintLeft_creator="0"
+        app:layout_constraintTop_toTopOf="@+id/workoutTile"
+        android:layout_marginTop="16dp"
+        tools:layout_constraintTop_creator="0"
+        app:layout_constraintRight_toRightOf="@+id/tagSecondaryText"
+        tools:layout_constraintRight_creator="0"
+        app:layout_constraintHorizontal_bias="0.0" />
+
+    <TextView
+        android:id="@+id/tagSecondaryText"
+        android:layout_height="20dp"
+        android:text="@{tag.comments}"
+        android:textColor="@color/colorSecondaryText"
+        android:textSize="@dimen/list_tile_secondary_text"
+        tools:layout_editor_absoluteX="73dp"
+        tools:layout_editor_absoluteY="36dp"
+        android:layout_width="248dp"
+        app:layout_constraintLeft_toLeftOf="@+id/workoutTile"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        tools:layout_constraintLeft_creator="0"
+        app:layout_constraintTop_toBottomOf="@+id/tagPrimaryText"
+        tools:layout_constraintTop_creator="0"
+        app:layout_constraintRight_toLeftOf="@+id/tagEdit"
+        tools:layout_constraintRight_creator="0"
+        app:layout_constraintBottom_toBottomOf="@+id/workoutTile"
+        android:layout_marginBottom="16dp"
+        tools:layout_constraintBottom_creator="0"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintVertical_bias="0.06" />
+
+    <com.mikepenz.iconics.view.IconicsImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center_vertical"
+        app:iiv_color="@color/colorHintText"
+        app:iiv_icon="gmd-edit"
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="344dp"
+        tools:layout_editor_absoluteY="24dp"
+        android:id="@+id/tagEdit"
+        app:layout_constraintTop_toTopOf="@+id/workoutTile"
+        android:layout_marginTop="16dp"
+        tools:layout_constraintTop_creator="0"
+        app:layout_constraintRight_toRightOf="@+id/workoutTile"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        tools:layout_constraintRight_creator="0"
+        app:layout_constraintBottom_toBottomOf="@+id/workoutTile"
+        android:layout_marginBottom="16dp"
+        tools:layout_constraintBottom_creator="0" />
+
+</android.support.constraint.ConstraintLayout>
+</layout>

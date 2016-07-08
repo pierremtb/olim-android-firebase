@@ -1,0 +1,188 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+
+<!--<FrameLayout-->
+    <!--style="@style/commonListItemStyle"-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="72dp"-->
+    <!--android:background="@drawable/bg_swipe_item_neutral">-->
+
+    <!--<FrameLayout-->
+        <!--android:id="@+id/taskContainer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:clickable="true"-->
+        <!--android:foreground="?attr/selectableItemBackground"-->
+        <!--tools:ignore="UselessParent">-->
+
+        <!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+            <!--xmlns:tools="http://schemas.android.com/tools"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:id="@+id/taskLayout"-->
+            <!--android:background="@drawable/background"-->
+            <!--android:layout_height="72dp">-->
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/taskTag"-->
+                <!--android:layout_width="40dp"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:layout_marginLeft="16dp"-->
+                <!--android:layout_marginStart="16dp"-->
+                <!--android:src="@drawable/ic_label_outline"-->
+                <!--android:tint="@color/white"-->
+                <!--android:background="@null"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:scaleType="center"-->
+                <!--/>-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_marginLeft="72dp"-->
+                <!--android:layout_marginRight="16dp"-->
+                <!--android:layout_centerVertical="true">-->
+
+                <!--<TextView-->
+                    <!--android:id="@+id/taskPrimaryText"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:textColor="@color/colorPrimaryText"-->
+                    <!--android:textSize="@dimen/list_tile_primary_text" />-->
+
+                <!--<TextView-->
+                    <!--android:id="@+id/taskSecondaryText"-->
+                    <!--android:layout_width="fill_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textColor="@color/colorSecondaryText"-->
+                    <!--android:textSize="@dimen/list_tile_secondary_text" />-->
+            <!--</LinearLayout>-->
+        <!--</RelativeLayout>-->
+
+    <!--</FrameLayout>-->
+
+<!--</FrameLayout>-->
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="task"
+            type="com.pierrejacquier.olim.data.Task" />
+    </data>
+
+    <FrameLayout
+        style="@style/commonListItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_swipe_item_neutral">
+
+    <FrameLayout
+        android:id="@+id/taskContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        tools:ignore="UselessParent">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:id="@+id/taskLayout"
+        android:background="@drawable/background"
+        android:clickable="true"
+        android:layout_height="72dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="81dp">
+
+        <ImageButton
+            android:id="@+id/taskIconButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_label_outline"
+            android:tint="@color/white"
+            android:background="@null"
+            android:layout_centerVertical="true"
+            android:scaleType="center"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp"
+            app:layout_constraintLeft_toLeftOf="@+id/taskLayout"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            tools:layout_constraintLeft_creator="0"
+            app:layout_constraintTop_toTopOf="@+id/taskLayout"
+            android:layout_marginTop="16dp"
+            tools:layout_constraintTop_creator="0"
+            app:layout_constraintBottom_toBottomOf="@+id/taskLayout"
+            android:layout_marginBottom="16dp"
+            tools:layout_constraintBottom_creator="0"
+            app:layout_constraintVertical_bias="0.56" />
+
+        <TextView
+            android:id="@+id/taskPrimaryText"
+            android:layout_height="20dp"
+            android:text="@{task.title}"
+            android:textColor="@color/colorPrimaryText"
+            android:textSize="@dimen/list_tile_primary_text"
+            tools:layout_editor_absoluteX="73dp"
+            tools:layout_editor_absoluteY="16dp"
+            android:layout_width="248dp"
+            app:layout_constraintLeft_toLeftOf="@+id/taskSecondaryText"
+            tools:layout_constraintLeft_creator="0"
+            app:layout_constraintTop_toTopOf="@+id/taskLayout"
+            android:layout_marginTop="16dp"
+            tools:layout_constraintTop_creator="0"
+            app:layout_constraintRight_toRightOf="@+id/taskSecondaryText"
+            tools:layout_constraintRight_creator="0"
+            app:layout_constraintHorizontal_bias="0.0" />
+
+        <TextView
+            android:id="@+id/taskSecondaryText"
+            android:layout_height="20dp"
+            android:text="@{task.dispDueDate() + ` ` + task.dispDueTime()}"
+            android:textColor="@color/colorSecondaryText"
+            android:textSize="@dimen/list_tile_secondary_text"
+            tools:layout_editor_absoluteX="73dp"
+            tools:layout_editor_absoluteY="36dp"
+            android:layout_width="248dp"
+            app:layout_constraintLeft_toLeftOf="@+id/taskLayout"
+            android:layout_marginLeft="72dp"
+            android:layout_marginStart="72dp"
+            tools:layout_constraintLeft_creator="0"
+            app:layout_constraintTop_toBottomOf="@+id/taskPrimaryText"
+            tools:layout_constraintTop_creator="0"
+            app:layout_constraintRight_toLeftOf="@+id/taskEdit"
+            tools:layout_constraintRight_creator="0"
+            app:layout_constraintBottom_toBottomOf="@+id/taskLayout"
+            android:layout_marginBottom="16dp"
+            tools:layout_constraintBottom_creator="0"
+            app:layout_constraintHorizontal_bias="0.07"
+            app:layout_constraintVertical_bias="0.06" />
+
+        <com.mikepenz.iconics.view.IconicsImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            app:iiv_color="@color/colorHintText"
+            app:iiv_icon="gmd-edit"
+            android:visibility="gone"
+            tools:layout_editor_absoluteX="344dp"
+            tools:layout_editor_absoluteY="24dp"
+            android:id="@+id/taskEdit"
+            app:layout_constraintTop_toTopOf="@+id/taskLayout"
+            android:layout_marginTop="16dp"
+            tools:layout_constraintTop_creator="0"
+            app:layout_constraintRight_toRightOf="@+id/taskLayout"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            tools:layout_constraintRight_creator="0"
+            app:layout_constraintBottom_toBottomOf="@+id/taskLayout"
+            android:layout_marginBottom="16dp"
+            tools:layout_constraintBottom_creator="0" />
+
+    </android.support.constraint.ConstraintLayout>
+    </FrameLayout>
+    </FrameLayout>
+</layout>

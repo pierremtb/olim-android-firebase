@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#00BCD4</color>
+    <color name="colorPrimaryDark">#00ACC1</color>
+    <color name="colorAccent">#FFEB3B</color>
+    <color name="colorPrimaryText">#D9000000</color>
+    <color name="colorSecondaryText">#8C000000</color>
+    <color name="colorSecondaryTextNonFaded">#717171</color>
+    <color name="colorHintText">#66000000</color>
+    <color name="colorHintTextNonFaded">#999999</color>
+    <color name="colorPrimaryTextColored">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="colorDivider">#1F000000</color>
+    <color name="colorHighlight">#40000000</color>
+
+    <color name="ripple_accent">#80e91e63</color>
+    <color name="cardsbg">#ffffff</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="divider_grey">#d4d4d4</color>
+
+    <!-- Color for Backgrounds -->
+    <color name="light_bg">#fafafa</color>
+
+    <!-- Color for some ripples -->
+    <color name="semitransparent_white">#80ffffff</color>
+    <color name="bg_item_normal_state">@color/white</color>
+    <color name="bg_item_dragging_state">#ffffdddd</color>
+    <color name="bg_item_dragging_active_state">#ffff9999</color>
+    <color name="bg_item_swiping_state">@color/white</color>
+    <color name="bg_item_swiping_active_state">#F5F5F5</color>
+
+    <color name="bg_group_item_normal_state">#ffddffdd</color>
+    <color name="bg_group_item_normal_pressed_state">#ff99cc99</color>
+    <color name="bg_group_item_expanded_state">#ff88dd88</color>
+    <color name="bg_group_item_expanded_pressed_state">#ff99cc99</color>
+    <color name="bg_group_item_dragging_state">#ffeeccff</color>
+    <color name="bg_group_item_dragging_active_state">#ffee99ff</color>
+    <color name="bg_group_item_swiping_state">#ffddccff</color>
+    <color name="bg_group_item_swiping_active_state">#ffbb99ff</color>
+
+    <color name="bg_swipe_item_neutral">@android:color/transparent</color>
+    <color name="bg_swipe_item_pinned">#fff9930d</color>
+    <color name="bg_swipe_item_dismiss">#ff2f8b2a</color>
+    <color name="bg_swipe_group_item_pinned">#fff45f30</color>
+    <color name="bg_swipe_group_item_dismiss">#ff295db3</color>
+
+    <color name="snackbar_action_color_done">#ffccccff</color>
+
+    <color name="expandable_item_indicator_color">#42000000</color>
+</resources>
