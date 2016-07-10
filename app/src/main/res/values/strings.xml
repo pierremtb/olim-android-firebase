@@ -137,5 +137,10 @@
     <string name="display_done_summary">The tasks marked as done are still displayed if activated</string>
     <string name="pref_title_tasks_reminder_notifications">Tasks reminders notifications</string>
     <string name="navigation_drawer_about">About</string>
-    <string name="app_description">Easily manage your tasks</string>
+    <string name="app_description">A carefully designed, open-source and real-time tasks app.</string>
+    <string name="all">All</string>
+    <string name="manage">Manage</string>
+    <string name="in_the_next_seven_days">In the next seven days</string>
+    <string name="all_upcoming">All upcoming</string>
+    <string name="no_results">No results</string>
 </resources>

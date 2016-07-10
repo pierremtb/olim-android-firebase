@@ -19,7 +19,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.activities.TagActivity;
-import com.pierrejacquier.olim.adapters.TagsAdapter;
+import com.pierrejacquier.olim.adapters.RealTimeTagsAdapter;
 import com.pierrejacquier.olim.databinding.FragmentTagsBinding;
 
 public class TagsFragment extends Fragment implements View.OnClickListener {
@@ -78,8 +78,8 @@ public class TagsFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        TagsAdapter adapter = new TagsAdapter(tagsRef);
-        adapter.setEventListener(new TagsAdapter.EventListener() {
+        RealTimeTagsAdapter adapter = new RealTimeTagsAdapter(tagsRef);
+        adapter.setEventListener(new RealTimeTagsAdapter.EventListener() {
             @Override
             public void onTagClicked(DatabaseReference tagRef) {
                 launchTagActivity(tagRef.getKey());

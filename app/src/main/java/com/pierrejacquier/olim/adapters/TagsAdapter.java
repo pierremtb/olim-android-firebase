@@ -8,62 +8,39 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.h6ah4i.android.widget.advrecyclerview.utils.RecyclerViewAdapterUtils;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.data.Tag;
+import com.pierrejacquier.olim.data.Task;
 import com.pierrejacquier.olim.databinding.ItemTagBinding;
-import com.pierrejacquier.olim.utils.FirebaseArray;
 import com.pierrejacquier.olim.utils.Graphics;
+
+import java.util.List;
 
 public class TagsAdapter extends
         RecyclerView.Adapter<TagsAdapter.ViewHolder> {
 
+    private List<Tag> tags;
     public int hintColor;
     public IconicsDrawable tagIcon;
-    FirebaseArray mSnapshots;
-    private View.OnClickListener itemViewOnClickListener;
     private EventListener eventListener;
 
-    public TagsAdapter(Query ref) {
-        mSnapshots = new FirebaseArray(ref);
-
-        mSnapshots.setOnChangedListener(new FirebaseArray.OnChangedListener() {
-            @Override
-            public void onChanged(EventType type, int index, int oldIndex) {
-                switch (type) {
-                    case Added:
-                        notifyItemInserted(index);
-                        break;
-                    case Changed:
-                        notifyItemChanged(index);
-                        break;
-                    case Removed:
-                        notifyItemRemoved(index);
-                        break;
-                    case Moved:
-                        notifyItemMoved(oldIndex, index);
-                        break;
-                    default:
-                        throw new IllegalStateException("Incomplete case statement");
-                }
-            }
-        });
-
-        itemViewOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemViewClick(v);
-            }
-        };
+    public TagsAdapter(List<Tag> tags) {
+        this.tags = tags;
     }
 
-    public TagsAdapter(DatabaseReference ref) {
-        this((Query) ref);
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private ItemTagBinding binding;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            binding = DataBindingUtil.bind(itemView);
+        }
+
+        public ItemTagBinding getBinding() {
+            return binding;
+        }
     }
 
     @Override
@@ -81,14 +58,20 @@ public class TagsAdapter extends
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        Tag tag = getItem(position);
-        viewHolder.getBinding().setTag(tag);
-        viewHolder.getBinding().getRoot().setOnClickListener(itemViewOnClickListener);
+        final Tag tag = tags.get(position);
+        ItemTagBinding binding = viewHolder.getBinding();
+        binding.setTag(tag);
+        binding.getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                eventListener.onTagClicked(tag.getKey());
+            }
+        });
 
         if (tag.getColor() != null) {
-            viewHolder.getBinding().tagIconButton.setBackgroundDrawable(Graphics.createRoundDrawable(tag.getColor()));
+            binding.tagIconButton.setBackgroundDrawable(Graphics.createRoundDrawable(tag.getColor()));
         } else {
-            viewHolder.getBinding().tagIconButton.setBackgroundDrawable(
+            binding.tagIconButton.setBackgroundDrawable(
                     Graphics.createRoundDrawable(hintColor)
             );
         }
@@ -96,60 +79,26 @@ public class TagsAdapter extends
         if (tag.getIcon() != null) {
             try {
                 tagIcon.icon(GoogleMaterial.Icon.valueOf("gmd_" + tag.getIcon()));
-            } catch (Exception e) {
+            } catch (Exception e ) {
                 tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
             }
         } else {
             tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
         }
 
-        viewHolder.getBinding().tagIconButton.setImageDrawable(tagIcon);
+        binding.tagIconButton.setImageDrawable(tagIcon);
     }
 
     @Override
     public int getItemCount() {
-        return mSnapshots.getCount();
+        return tags.size();
     }
 
-    public Tag getItem(int position) {
-        return mSnapshots.getItem(position).getValue(Tag.class);
-    }
-
-    public DatabaseReference getRef(int position) {
-        return mSnapshots.getItem(position).getRef();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return mSnapshots.getItem(position).getKey().hashCode();
-    }
-
-    private void onItemViewClick(View v) {
-        if (eventListener != null) {
-            RecyclerView recyclerView = RecyclerViewAdapterUtils.getParentRecyclerView(v);
-            int position = recyclerView.getChildAdapterPosition(v);
-            eventListener.onTagClicked(getRef(position));
-        }
+    public interface EventListener {
+        void onTagClicked(String tagRef);
     }
 
     public void setEventListener(EventListener eventListener) {
         this.eventListener = eventListener;
-    }
-
-    public interface EventListener {
-        void onTagClicked(DatabaseReference tagRef);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private ItemTagBinding binding;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            binding = DataBindingUtil.bind(itemView);
-        }
-
-        public ItemTagBinding getBinding() {
-            return binding;
-        }
     }
 }

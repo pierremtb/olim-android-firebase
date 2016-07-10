@@ -4,7 +4,6 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeMana
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemConstants;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultAction;
-import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionDefault;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionMoveToSwipedDirection;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.action.SwipeResultActionRemoveItem;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractSwipeableItemViewHolder;
@@ -32,9 +30,9 @@ import com.pierrejacquier.olim.databinding.ItemTaskBinding;
 import com.pierrejacquier.olim.utils.FirebaseArray;
 import com.pierrejacquier.olim.utils.Graphics;
 
-public class SwipeableTasksAdapter
-        extends RecyclerView.Adapter<SwipeableTasksAdapter.TaskViewHolder>
-        implements SwipeableItemAdapter<SwipeableTasksAdapter.TaskViewHolder> {
+public class SwipeableRealTimeTasksAdapter
+        extends RecyclerView.Adapter<SwipeableRealTimeTasksAdapter.TaskViewHolder>
+        implements SwipeableItemAdapter<SwipeableRealTimeTasksAdapter.TaskViewHolder> {
 
     private FirebaseArray snapshots;
     private EventListener eventListener;
@@ -44,7 +42,7 @@ public class SwipeableTasksAdapter
     private int primaryColor;
     private Context context;
 
-    public SwipeableTasksAdapter(Query ref, final boolean allowDone) {
+    public SwipeableRealTimeTasksAdapter(Query ref, final boolean allowDone) {
         snapshots = new FirebaseArray(ref);
 
         snapshots.setOnChangedListener(new FirebaseArray.OnChangedListener() {
@@ -85,11 +83,11 @@ public class SwipeableTasksAdapter
         setHasStableIds(true);
     }
 
-    public SwipeableTasksAdapter(Query ref) {
+    public SwipeableRealTimeTasksAdapter(Query ref) {
         this(ref, true);
     }
 
-    public SwipeableTasksAdapter(DatabaseReference ref) {
+    public SwipeableRealTimeTasksAdapter(DatabaseReference ref) {
         this((Query) ref);
     }
 
@@ -334,9 +332,9 @@ public class SwipeableTasksAdapter
 
     private static class SwipeLeftResultAction extends SwipeResultActionMoveToSwipedDirection {
         private final int position;
-        private SwipeableTasksAdapter adapter;
+        private SwipeableRealTimeTasksAdapter adapter;
 
-        SwipeLeftResultAction(SwipeableTasksAdapter adapter, int position) {
+        SwipeLeftResultAction(SwipeableRealTimeTasksAdapter adapter, int position) {
             this.adapter = adapter;
             this.position = position;
         }
@@ -358,9 +356,9 @@ public class SwipeableTasksAdapter
 
     private static class SwipeRightResultAction extends SwipeResultActionRemoveItem {
         private final int position;
-        private SwipeableTasksAdapter adapter;
+        private SwipeableRealTimeTasksAdapter adapter;
 
-        SwipeRightResultAction(SwipeableTasksAdapter adapter, int position) {
+        SwipeRightResultAction(SwipeableRealTimeTasksAdapter adapter, int position) {
             this.adapter = adapter;
             this.position = position;
         }

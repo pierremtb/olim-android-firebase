@@ -49,7 +49,7 @@ import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.activities.MainActivity;
 import com.pierrejacquier.olim.activities.TagActivity;
 import com.pierrejacquier.olim.activities.TaskActivity;
-import com.pierrejacquier.olim.adapters.SwipeableTasksAdapter;
+import com.pierrejacquier.olim.adapters.SwipeableRealTimeTasksAdapter;
 import com.pierrejacquier.olim.adapters.TagsListAdapter;
 import com.pierrejacquier.olim.data.Tag;
 import com.pierrejacquier.olim.data.Task;
@@ -66,11 +66,10 @@ public class TasksFragment
         implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     private MainActivity mainActivity;
+    private OnFragmentInteractionListener Main;
     private FragmentTasksBinding binding;
 
     private Task newTask = new Task();
-    private Tag currentTag = null;
-
     private MaterialDialog tagsFilteringDialog;
     private MaterialDialog tagChooserDialog;
     private DatePickerDialog newTaskDueDatePickerDialog;
@@ -250,7 +249,7 @@ public class TasksFragment
         overdueTasksRecyclerViewTouchActionGuardManager.setInterceptVerticalScrollingWhileAnimationRunning(true);
         overdueTasksRecyclerViewTouchActionGuardManager.setEnabled(true);
         RecyclerViewSwipeManager overdueTasksRecyclerViewSwipeManager = new RecyclerViewSwipeManager();
-        SwipeableTasksAdapter overdueTasksItemAdapter = new SwipeableTasksAdapter(getOverdueTasksQuery(), false);
+        SwipeableRealTimeTasksAdapter overdueTasksItemAdapter = new SwipeableRealTimeTasksAdapter(getOverdueTasksQuery(), false);
         overdueTasksItemAdapter.setEventListener(new TaskEventsListener());
         RecyclerView.Adapter overdueTasksWrappedAdapter = overdueTasksRecyclerViewSwipeManager.createWrappedAdapter(overdueTasksItemAdapter);
         GeneralItemAnimator overdueTasksAnimator = new SwipeDismissItemAnimator();
@@ -267,7 +266,7 @@ public class TasksFragment
         todayTasksRecyclerViewTouchActionGuardManager.setInterceptVerticalScrollingWhileAnimationRunning(true);
         todayTasksRecyclerViewTouchActionGuardManager.setEnabled(true);
         RecyclerViewSwipeManager todayTasksRecyclerViewSwipeManager = new RecyclerViewSwipeManager();
-        SwipeableTasksAdapter todayTasksItemAdapter = new SwipeableTasksAdapter(getTodayTasksQuery());
+        SwipeableRealTimeTasksAdapter todayTasksItemAdapter = new SwipeableRealTimeTasksAdapter(getTodayTasksQuery());
         todayTasksItemAdapter.setEventListener(new TaskEventsListener());
         RecyclerView.Adapter todayTasksWrappedAdapter = todayTasksRecyclerViewSwipeManager.createWrappedAdapter(todayTasksItemAdapter);
         GeneralItemAnimator todayTasksAnimator = new SwipeDismissItemAnimator();
@@ -284,7 +283,7 @@ public class TasksFragment
         tomorrowTasksRecyclerViewTouchActionGuardManager.setInterceptVerticalScrollingWhileAnimationRunning(true);
         tomorrowTasksRecyclerViewTouchActionGuardManager.setEnabled(true);
         RecyclerViewSwipeManager tomorrowTasksRecyclerViewSwipeManager = new RecyclerViewSwipeManager();
-        SwipeableTasksAdapter tomorrowTasksItemAdapter = new SwipeableTasksAdapter(getTomorrowTasksQuery());
+        SwipeableRealTimeTasksAdapter tomorrowTasksItemAdapter = new SwipeableRealTimeTasksAdapter(getTomorrowTasksQuery());
         tomorrowTasksItemAdapter.setEventListener(new TaskEventsListener());
         RecyclerView.Adapter tomorrowTasksWrappedAdapter = tomorrowTasksRecyclerViewSwipeManager.createWrappedAdapter(tomorrowTasksItemAdapter);
         GeneralItemAnimator tomorrowTasksAnimator = new SwipeDismissItemAnimator();
@@ -301,7 +300,7 @@ public class TasksFragment
         inTheNextSevenDaysTasksRecyclerViewTouchActionGuardManager.setInterceptVerticalScrollingWhileAnimationRunning(true);
         inTheNextSevenDaysTasksRecyclerViewTouchActionGuardManager.setEnabled(true);
         RecyclerViewSwipeManager inTheNextSevenDaysTasksRecyclerViewSwipeManager = new RecyclerViewSwipeManager();
-        SwipeableTasksAdapter inTheNextSevenDaysTasksItemAdapter = new SwipeableTasksAdapter(getInTheNextSevenDaysTasksQuery());
+        SwipeableRealTimeTasksAdapter inTheNextSevenDaysTasksItemAdapter = new SwipeableRealTimeTasksAdapter(getInTheNextSevenDaysTasksQuery());
         inTheNextSevenDaysTasksItemAdapter.setEventListener(new TaskEventsListener());
         RecyclerView.Adapter inTheNextSevenDaysTasksWrappedAdapter = inTheNextSevenDaysTasksRecyclerViewSwipeManager.createWrappedAdapter(inTheNextSevenDaysTasksItemAdapter);
         GeneralItemAnimator inTheNextSevenDaysTasksAnimator = new SwipeDismissItemAnimator();
@@ -318,7 +317,7 @@ public class TasksFragment
         laterTasksRecyclerViewTouchActionGuardManager.setInterceptVerticalScrollingWhileAnimationRunning(true);
         laterTasksRecyclerViewTouchActionGuardManager.setEnabled(true);
         RecyclerViewSwipeManager laterTasksRecyclerViewSwipeManager = new RecyclerViewSwipeManager();
-        SwipeableTasksAdapter laterTasksItemAdapter = new SwipeableTasksAdapter(getLaterTasksQuery());
+        SwipeableRealTimeTasksAdapter laterTasksItemAdapter = new SwipeableRealTimeTasksAdapter(getLaterTasksQuery());
         laterTasksItemAdapter.setEventListener(new TaskEventsListener());
         RecyclerView.Adapter laterTasksWrappedAdapter = laterTasksRecyclerViewSwipeManager.createWrappedAdapter(laterTasksItemAdapter);
         GeneralItemAnimator laterTasksAnimator = new SwipeDismissItemAnimator();
@@ -345,7 +344,6 @@ public class TasksFragment
             @Override
             public void afterTextChanged(Editable editable) {
                 // TODO: implement SmartTaskAdder
-                // TODO: set default dueDate as now()
                 String text = editable.toString();
                 if (!text.equals("")) {
                     newTask.setTitle(text);
@@ -425,6 +423,9 @@ public class TasksFragment
                 newTaskDueTimePickerDialog.show();
             }
         });
+
+        showTargetedTasks(getArguments().getInt("targeted_tasks"));
+        destroyPreviewTask();
     }
 
     @Override
@@ -442,7 +443,7 @@ public class TasksFragment
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            OnFragmentInteractionListener main = (OnFragmentInteractionListener) context;
+            Main = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement onSomeEventListener");
         }
@@ -465,8 +466,7 @@ public class TasksFragment
         } else {
             if (tagsFilteringDialog.isShowing()) {
                 tagsFilteringDialog.dismiss();
-                setCurrentTag(tag);
-                // TODO: filter tasks by this tag
+                Main.showFilterFragment(tag.getKey());
             } else if (tagChooserDialog.isShowing()) {
                 tagChooserDialog.dismiss();
                 newTask.setTag(tag);
@@ -600,7 +600,6 @@ public class TasksFragment
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        clearCurrentTag();
                     }
                 })
                 .negativeText(R.string.create_tag)
@@ -648,61 +647,6 @@ public class TasksFragment
                 .build();
     }
 
-    public Tag getCurrentTag() {
-        return currentTag;
-    }
-
-    private void setCurrentTag(Tag tag) {
-        currentTag = tag;
-
-        if (tag == null) {
-            return;
-        }
-
-        binding.currentTagChipLayout.setVisibility(View.VISIBLE);
-        binding.currentTagChipLabel.setText(currentTag.getHashName());
-        IconicsDrawable tagIcon = new IconicsDrawable(getContext()).sizeDp(13).color(Color.WHITE);
-        int hintColor = getContext().getResources().getColor(R.color.colorHintText);
-
-        if (tag.getColor() != null) {
-            binding.currentTagChipIcon.setBackgroundDrawable(Graphics.createRoundDrawable(tag.getColor()));
-        } else {
-            binding.currentTagChipIcon.setBackgroundDrawable(
-                    Graphics.createRoundDrawable(Graphics.intColorToHex(hintColor))
-            );
-        }
-
-        if (tag.getIcon() != null) {
-            try {
-                tagIcon.icon(GoogleMaterial.Icon.valueOf("gmd_" + tag.getIcon()));
-            } catch (Exception e) {
-                tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
-            }
-        } else {
-            tagIcon.icon(GoogleMaterial.Icon.gmd_label_outline);
-        }
-
-        binding.currentTagChipIcon.setImageDrawable(tagIcon);
-
-        binding.currentTagChipIconDelete.setBackgroundDrawable(Graphics.createRoundDrawable("#8C000000"));
-        binding.currentTagChipIconDelete.setImageDrawable(
-                new IconicsDrawable(getContext()).icon(GoogleMaterial.Icon.gmd_clear)
-                        .sizeDp(9)
-                        .color(Color.parseColor("#D4D4D4"))
-        );
-        binding.currentTagChipIconDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clearCurrentTag();
-            }
-        });
-    }
-
-    private void clearCurrentTag() {
-        binding.currentTagChipLayout.setVisibility(View.GONE);
-        setCurrentTag(null);
-    }
-
     public void hideTaskAdder() {
         binding.taskAdderCard.setVisibility(View.GONE);
     }
@@ -720,6 +664,7 @@ public class TasksFragment
     private void destroyPreviewTask() {
         Tools.hideKeyboard(mainActivity);
         newTask = new Task();
+        newTask.setDueDate(new Date().getTime());
         binding.previewTaskLayout.setVisibility(View.GONE);
         binding.taskAdderSendButton.setColorFilter(getResources().getColor(R.color.colorHintTextNonFaded), PorterDuff.Mode.SRC_IN);
         binding.taskPrimaryText.setText("");
@@ -759,10 +704,75 @@ public class TasksFragment
         startActivityForResult(intent, 0);
     }
 
-    public interface OnFragmentInteractionListener {
+    // TODO: show a no-task message if no tasks in the targeted view
+    public void showTargetedTasks(int targetedTasks) {
+        switch (targetedTasks) {
+            case MainActivity.DRAWER_TASKS_OVERDUE:
+                showOverdueTasks();
+                break;
+            case MainActivity.DRAWER_TASKS_TODAY:
+                showTodayTasks();
+                break;
+            case MainActivity.DRAWER_TASKS_TOMORROW:
+                showTomorrowTasks();
+                break;
+            case MainActivity.DRAWER_TASKS_IN_THE_NEXT_SEVEN_DAYS:
+                showInTheNextSevenDaysTasks();
+                break;
+            case MainActivity.DRAWER_TASKS_ALL:
+                showAllUpcomingTasks();
+                break;
+            case -1: break;
+        }
+    }
+    
+    public void hideAllTasks() {
+        binding.overdueTasksLayout.setVisibility(View.GONE);
+        binding.todayTasksLayout.setVisibility(View.GONE);
+        binding.tomorrowTasksLayout.setVisibility(View.GONE);
+        binding.inTheNextSevenDaysTasksLayout.setVisibility(View.GONE);
+        binding.laterTasksLayout.setVisibility(View.GONE);
+    }
+    
+    public void showAllUpcomingTasks() {
+        binding.overdueTasksLayout.setVisibility(View.GONE);
+        binding.todayTasksLayout.setVisibility(View.VISIBLE);
+        binding.tomorrowTasksLayout.setVisibility(View.VISIBLE);
+        binding.inTheNextSevenDaysTasksLayout.setVisibility(View.VISIBLE);
+        binding.laterTasksLayout.setVisibility(View.VISIBLE);
     }
 
-    private class TaskEventsListener implements SwipeableTasksAdapter.EventListener {
+    public void showOverdueTasks() {
+        hideAllTasks();
+        binding.overdueTasksLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void showTodayTasks() {
+        hideAllTasks();
+        binding.todayTasksLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void showTomorrowTasks() {
+        hideAllTasks();
+        binding.tomorrowTasksLayout.setVisibility(View.VISIBLE);
+        Log.e("aeiu", "nauie");
+    }
+
+    public void showInTheNextSevenDaysTasks() {
+        hideAllTasks();
+        binding.inTheNextSevenDaysTasksLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void showLaterTasks() {
+        hideAllTasks();
+        binding.laterTasksLayout.setVisibility(View.VISIBLE);
+    }
+
+    public interface OnFragmentInteractionListener {
+        void showFilterFragment(String tagKey);
+    }
+
+    private class TaskEventsListener implements SwipeableRealTimeTasksAdapter.EventListener {
 
         TaskEventsListener() {}
 

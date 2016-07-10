@@ -43,6 +43,7 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
@@ -51,7 +52,9 @@ import com.mikepenz.materialdrawer.util.DrawerUIUtils;
 import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.data.Task;
 import com.pierrejacquier.olim.databinding.ActivityMainBinding;
+import com.pierrejacquier.olim.fragments.FilterFragment;
 import com.pierrejacquier.olim.fragments.LoadingFragment;
+import com.pierrejacquier.olim.fragments.SearchFragment;
 import com.pierrejacquier.olim.fragments.TagsFragment;
 import com.pierrejacquier.olim.fragments.TasksFragment;
 
@@ -61,15 +64,26 @@ import java.util.List;
 public class MainActivity
         extends AppCompatActivity
         implements TasksFragment.OnFragmentInteractionListener,
+        SearchFragment.OnFragmentInteractionListener,
+        FilterFragment.OnFragmentInteractionListener,
         TagsFragment.OnFragmentInteractionListener {
 
-    private final static int DRAWER_TASKS = 1;
-    private final static int DRAWER_TAGS = 2;
-    private final static int DRAWER_DIVIDER = 3;
-    private final static int DRAWER_SETTINGS = 4;
-    private final static int DRAWER_ABOUT = 4;
-    private final static int DRAWER_SIGNOUT = 5;
-    private static final int RC_SIGN_IN = 10;
+
+    public final static int DRAWER_TASKS_HEADER = 1;
+    public final static int DRAWER_TASKS_OVERDUE = 2;
+    public final static int DRAWER_TASKS_TODAY = 3;
+    public final static int DRAWER_TASKS_TOMORROW = 4;
+    public final static int DRAWER_TASKS_IN_THE_NEXT_SEVEN_DAYS = 5;
+    public final static int DRAWER_TASKS_ALL = 6;
+    public final static int DRAWER_MANAGE_HEADER = 7;
+    public final static int DRAWER_TAGS = 8;
+    public final static int DRAWER_SETTINGS = 9;
+    public final static int DRAWER_ABOUT = 10;
+    public final static int DRAWER_SIGNOUT = 11;
+    private static final int RC_SIGN_IN = 30;
+
+    public int lastTargetedTasks = -1;
+
     private Menu actionsMenu;
     private ActionBar actionBar;
     private String currentFragmentName = null;
@@ -123,63 +137,35 @@ public class MainActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         actionsMenu = menu;
-//                .getReference().child("users")
-//                .child(auth.getCurrentUser().getUid())
-//                .child("tasks")
-//                .addValueEventListener(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-//                            Task task = child.getValue(Task.class);
-//                            task.setKey(child.getKey());
-//                            tasks.add(task);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError databaseError) {
-//
-//                    }
-//                });
-//        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-//
-//        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-//        SearchView.SearchAutoComplete theTextArea = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
-//        theTextArea.setTextColor(getResources().getColor(R.color.colorPrimaryText));
-//        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View view, boolean opening) {
-//                if (opening) {
-//                    getTasksFragment().hideTaskAdder();
-//                } else {
-//                    getTasksFragment().showTaskAdder();
-//                }
-//            }
-//        });
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                List<Task> filteredTasks = new ArrayList<>();
-//                if (newText.equals("")) {
-//                    filteredTasks = tasks;
-//                } else {
-//                    for (Task task : tasks) {
-//                        if (task.getTitle() != null &&
-//                                task.getTitle().toUpperCase().contains(newText.toUpperCase())) {
-//                            filteredTasks.add(task);
-//                        }
-//                    }
-//                }
-//                Log.e("iiiii", filteredTasks.toString());
-//                return false;
-//            }
-//        });
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        SearchView.SearchAutoComplete theTextArea = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        theTextArea.setTextColor(getResources().getColor(R.color.colorPrimaryText));
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean opening) {
+                if (!opening) {
+                    showTasksFragment();
+                }
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (getSearchFragment() == null) {
+                    return false;
+                }
+                getSearchFragment().updateResults(newText);
+                return false;
+            }
+        });
         return true;
     }
 
@@ -194,11 +180,11 @@ public class MainActivity
                     tasksFragment.showTagsFilteringDialog();
                 }
                 break;
-//            case R.id.action_search:
-//                if (currentFragmentName.equals("TasksFragment")) {
-//                    getTasksFragment().hideTaskAdder();
-//                }
-//                break;
+            case R.id.action_search:
+                if (currentFragmentName.equals("TasksFragment")) {
+                    showSearchFragment();
+                }
+                break;
             default:
                 break;
         }
@@ -231,26 +217,47 @@ public class MainActivity
      * Navigation handling methods
      */
 
-    private void showTasksFragment() {
-        Fragment TasksFG = new TasksFragment();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.mainFrame, TasksFG, "TasksFragment");
-        actionBar.setTitle("Tasks");
-        currentFragmentName = "TasksFragment";
-        ft.commit();
-        if (actionsMenu != null) {
-            actionsMenu.getItem(0).setVisible(true);
+    public void showTasksFragment() {
+        showTasksFragment(-1);
+    }
+
+    private void showTasksFragment(int tasksTarget) {
+        if (getTasksFragment() == null) {
+            if (tasksTarget == -1 && lastTargetedTasks != -1) {
+                tasksTarget = lastTargetedTasks;
+            }
+            Fragment TasksFG = new TasksFragment();
+            Bundle b = new Bundle();
+            b.putInt("targeted_tasks", tasksTarget);
+            TasksFG.setArguments(b);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_up, R.anim.slide_down);
+            ft.replace(R.id.mainFrame, TasksFG, "TasksFragment");
+            actionBar.setTitle("Tasks");
+            currentFragmentName = "TasksFragment";
+            ft.commit();
+            lastTargetedTasks = tasksTarget;
+            if (actionsMenu != null) {
+                actionsMenu.getItem(0).setVisible(true);
+                actionsMenu.getItem(1).setVisible(true);
+            }
+        } else {
+            getTasksFragment().showTargetedTasks(tasksTarget);
         }
     }
 
     private void showTagsFragment() {
         Fragment TagsFG = new TagsFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_up, R.anim.slide_down);
         ft.replace(R.id.mainFrame, TagsFG);
         actionBar.setTitle("Tags");
         currentFragmentName = "TagsFragment";
         ft.commit();
-        actionsMenu.getItem(0).setVisible(false);
+        if (actionsMenu != null) {
+            actionsMenu.getItem(0).setVisible(false);
+            actionsMenu.getItem(1).setVisible(false);
+        }
     }
 
     private void showLoadingFragment() {
@@ -262,12 +269,47 @@ public class MainActivity
         ft.commit();
     }
 
+    private void showSearchFragment() {
+        Fragment searchFragment = new SearchFragment();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_up, R.anim.slide_down);
+        ft.replace(R.id.mainFrame, searchFragment, "SearchFragment");
+        actionBar.setTitle("Search");
+        currentFragmentName = "SearchFragment";
+        ft.commit();
+        if (actionsMenu != null) {
+            actionsMenu.getItem(0).setVisible(false);
+            actionsMenu.getItem(1).setVisible(false);
+        }
+    }
+
+    public void showFilterFragment(String tagKey) {
+        Fragment filterFragment = new FilterFragment();
+        Bundle b = new Bundle();
+        b.putString("tag_key", tagKey);
+        filterFragment.setArguments(b);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_up, R.anim.slide_down);
+        ft.replace(R.id.mainFrame, filterFragment, "FilterFragment");
+        actionBar.setTitle("Filter");
+        currentFragmentName = "FilterFragment";
+        ft.commit();
+        if (actionsMenu != null) {
+            actionsMenu.getItem(0).setVisible(false);
+            actionsMenu.getItem(1).setVisible(false);
+        }
+    }
+
     private void signOut() {
         auth.signOut();
     }
 
     private TasksFragment getTasksFragment() {
         return (TasksFragment) getSupportFragmentManager().findFragmentByTag("TasksFragment");
+    }
+
+    private SearchFragment getSearchFragment() {
+        return (SearchFragment) getSupportFragmentManager().findFragmentByTag("SearchFragment");
     }
 
     private void launchSettings() {
@@ -355,20 +397,40 @@ public class MainActivity
                 .withTranslucentStatusBar(true)
                 .withAccountHeader(headerResult)
                 .addDrawerItems(
-                        new PrimaryDrawerItem()
-                                .withIdentifier(DRAWER_TASKS)
-                                .withName(R.string.navigation_drawer_tasks)
-                                .withIcon(GoogleMaterial.Icon.gmd_done_all),
-                        new PrimaryDrawerItem()
+                        new SectionDrawerItem().withName(R.string.navigation_drawer_tasks)
+                                .withIdentifier(DRAWER_TASKS_HEADER)
+                                .withDivider(false),
+                        new SecondaryDrawerItem()
+                                .withIdentifier(DRAWER_TASKS_OVERDUE)
+                                .withName(R.string.overdue)
+                                .withIcon(GoogleMaterial.Icon.gmd_warning),
+                        new SecondaryDrawerItem()
+                                .withIdentifier(DRAWER_TASKS_TODAY)
+                                .withName(R.string.today)
+                                .withIcon(GoogleMaterial.Icon.gmd_hourglass_full),
+                        new SecondaryDrawerItem()
+                                .withIdentifier(DRAWER_TASKS_TOMORROW)
+                                .withName(R.string.tomorrow)
+                                .withIcon(GoogleMaterial.Icon.gmd_hourglass_empty),
+                        new SecondaryDrawerItem()
+                                .withIdentifier(DRAWER_TASKS_IN_THE_NEXT_SEVEN_DAYS)
+                                .withName(R.string.in_the_next_seven_days)
+                                .withIcon(GoogleMaterial.Icon.gmd_event),
+                        new SecondaryDrawerItem()
+                                .withIdentifier(DRAWER_TASKS_ALL)
+                                .withName(R.string.all_upcoming)
+                                .withIcon(GoogleMaterial.Icon.gmd_all_inclusive),
+                        new SectionDrawerItem().withName(R.string.manage)
+                                .withIdentifier(DRAWER_MANAGE_HEADER),
+                        new SecondaryDrawerItem()
                                 .withIdentifier(DRAWER_TAGS)
                                 .withName(R.string.navigation_drawer_tags)
                                 .withIcon(GoogleMaterial.Icon.gmd_label_outline),
-                        new DividerDrawerItem().withIdentifier(DRAWER_DIVIDER),
-//                        new SecondaryDrawerItem()
-//                                .withIdentifier(DRAWER_SETTINGS)
-//                                .withName(R.string.navigation_drawer_settings)
-//                                .withIcon(GoogleMaterial.Icon.gmd_settings)
-//                                .withSelectable(false),
+                        new SecondaryDrawerItem()
+                                .withIdentifier(DRAWER_SETTINGS)
+                                .withName(R.string.navigation_drawer_settings)
+                                .withIcon(GoogleMaterial.Icon.gmd_settings)
+                                .withSelectable(false),
                         new SecondaryDrawerItem()
                                 .withIdentifier(DRAWER_ABOUT)
                                 .withName(R.string.navigation_drawer_about)
@@ -384,15 +446,19 @@ public class MainActivity
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         switch (position) {
-                            case DRAWER_TASKS:
-                                showTasksFragment();
+                            case DRAWER_TASKS_OVERDUE:
+                            case DRAWER_TASKS_TODAY:
+                            case DRAWER_TASKS_TOMORROW:
+                            case DRAWER_TASKS_IN_THE_NEXT_SEVEN_DAYS:
+                            case DRAWER_TASKS_ALL:
+                                showTasksFragment(position);
                                 break;
                             case DRAWER_TAGS:
                                 showTagsFragment();
                                 break;
-//                            case DRAWER_SETTINGS:
+                            case DRAWER_SETTINGS:
 //                                launchSettings();
-//                                break;
+                                break;
                             case DRAWER_ABOUT:
                                 launchAbout();
                                 break;
@@ -410,7 +476,7 @@ public class MainActivity
         // TODO: replace with a local image or account cover
         ImageView coverView = headerResult.getHeaderBackgroundView();
         Glide.with(this)
-                .load("http://www.elementaryos-fr.org/wp-content/uploads/2013/09/wallpaper-2132913.jpg")
+                .load("http://www.elementaryos-fr.org/wp-content/uploads/2013/09/wallpaper-1738907-240x150.png")
                 .into(coverView);
     }
 }
