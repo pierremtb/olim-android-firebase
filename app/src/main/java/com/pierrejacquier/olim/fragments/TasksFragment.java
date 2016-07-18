@@ -43,7 +43,6 @@ import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.SwipeDismissItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.swipeable.RecyclerViewSwipeManager;
 import com.h6ah4i.android.widget.advrecyclerview.touchguard.RecyclerViewTouchActionGuardManager;
-import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.pierrejacquier.olim.R;
 import com.pierrejacquier.olim.activities.MainActivity;
@@ -56,10 +55,14 @@ import com.pierrejacquier.olim.data.Task;
 import com.pierrejacquier.olim.databinding.FragmentTasksBinding;
 import com.pierrejacquier.olim.utils.CustomLinearLayoutManager;
 import com.pierrejacquier.olim.utils.Graphics;
+import com.pierrejacquier.olim.utils.Taskify;
+import com.pierrejacquier.olim.utils.TaskifyBackend;
 import com.pierrejacquier.olim.utils.Tools;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class TasksFragment
         extends Fragment
@@ -76,6 +79,8 @@ public class TasksFragment
     private TimePickerDialog newTaskDueTimePickerDialog;
     private DatabaseReference tasksRef;
     private DatabaseReference tagsRef;
+
+    private List<Tag> tags = new ArrayList<>();
 
     public TasksFragment() {
     }
@@ -165,6 +170,22 @@ public class TasksFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        tagsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    Tag tag = child.getValue(Tag.class);
+                    tag.setKey(child.getKey());
+                    tags.add(tag);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         tasksRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -347,7 +368,8 @@ public class TasksFragment
                 String text = editable.toString();
                 if (!text.equals("")) {
                     newTask.setTitle(text);
-                    renderPreviewTask();
+                    newTask = new Taskify().run(text, newTask, tags);
+                    renderNewTask();
                 } else {
                     binding.previewTaskLayout.setVisibility(View.GONE);
                 }
@@ -534,6 +556,7 @@ public class TasksFragment
     }
 
     private void insertTask() {
+        Log.e("tag", newTask.toString());
         tasksRef.push().setValue(newTask.getMap());
         destroyPreviewTask();
     }
@@ -579,6 +602,8 @@ public class TasksFragment
      */
 
     private void renderNewTask() {
+        binding.previewTaskLayout.setVisibility(View.VISIBLE);
+        binding.taskAdderSendButton.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         binding.setNewTask(newTask);
         IconicsDrawable id = new IconicsDrawable(getContext()).sizeDp(20).color(Color.WHITE);
         if (newTask.getTag() == null) {
@@ -653,12 +678,6 @@ public class TasksFragment
 
     public void showTaskAdder() {
         binding.taskAdderCard.setVisibility(View.VISIBLE);
-    }
-
-    private void renderPreviewTask() {
-        binding.previewTaskLayout.setVisibility(View.VISIBLE);
-        binding.taskAdderSendButton.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-        binding.setNewTask(newTask);
     }
 
     private void destroyPreviewTask() {
