@@ -264,6 +264,7 @@ public class TasksFragment
         createNewTaskTagChooserDialog(getContext());
         createTagsFilteringDialog(getContext());
 
+        // TODO: Hide done tasks in the overdue view
         // Overdue Tasks
         CustomLinearLayoutManager overdueTasksLayoutManager = new CustomLinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         RecyclerViewTouchActionGuardManager overdueTasksRecyclerViewTouchActionGuardManager = new RecyclerViewTouchActionGuardManager();

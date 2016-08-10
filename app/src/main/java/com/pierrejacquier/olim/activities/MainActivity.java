@@ -25,7 +25,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -107,25 +109,14 @@ public class MainActivity
 
         // Firebase Auth
         auth = FirebaseAuth.getInstance();
-        auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() != null) {
-                    buildDrawer();
-                    showTasksFragment();
-                } else {
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(
-                                            AuthUI.EMAIL_PROVIDER,
-                                            AuthUI.GOOGLE_PROVIDER)
-                                    .setTheme(R.style.AppTheme)
-                                    .build(),
-                            RC_SIGN_IN);
-                }
-            }
-        });
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            launchAuth();
+            return;
+        }
+
+        buildDrawer();
+        showTasksFragment();
     }
 
     @Override
@@ -207,6 +198,7 @@ public class MainActivity
         switch (requestCode) {
             case RC_SIGN_IN:
                 if (resultCode == RESULT_OK) {
+                    buildDrawer();
                     showTasksFragment();
                 }
                 break;
@@ -301,7 +293,16 @@ public class MainActivity
     }
 
     private void signOut() {
-        auth.signOut();
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            launchAuth();
+                        }
+                    }
+                });
     }
 
     private TasksFragment getTasksFragment() {
@@ -311,6 +312,19 @@ public class MainActivity
     private SearchFragment getSearchFragment() {
         return (SearchFragment) getSupportFragmentManager().findFragmentByTag("SearchFragment");
     }
+
+    private void launchAuth() {
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setProviders(
+                                AuthUI.EMAIL_PROVIDER,
+                                AuthUI.GOOGLE_PROVIDER)
+                        .setTheme(R.style.AppTheme)
+                        .build(),
+                RC_SIGN_IN);
+    }
+
 
     private void launchSettings() {
         Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -354,9 +368,6 @@ public class MainActivity
 
             @Override
             public Drawable placeholder(Context ctx, String tag) {
-                //define different placeholders for different imageView targets
-                //default tags are accessible via the DrawerImageLoader.Tags
-                //custom ones can be checked via string. see the CustomUrlBasePrimaryDrawerItem LINE 111
                 if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
                     return DrawerUIUtils.getPlaceHolder(ctx);
                 } else if (DrawerImageLoader.Tags.ACCOUNT_HEADER.name().equals(tag)) {
@@ -364,9 +375,6 @@ public class MainActivity
                 } else if ("customUrlItem".equals(tag)) {
                     return new IconicsDrawable(ctx).iconText(" ").backgroundColorRes(R.color.md_red_500).sizeDp(56);
                 }
-
-                //we use the default one for
-                //DrawerImageLoader.Tags.PROFILE_DRAWER_ITEM.name()
 
                 return super.placeholder(ctx, tag);
             }

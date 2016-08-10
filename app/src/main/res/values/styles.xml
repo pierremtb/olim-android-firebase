@@ -32,21 +32,21 @@
     </style>
 
     <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
-    <!-- Background for the search query section (e.g. EditText)-->
-    <item name="queryBackground">@color/transparent</item>
-    <!-- Background for the actions section (e.g. voice, submit)-->
-    <item name="submitBackground">@color/colorSecondaryText</item>
-    <!-- Close button icon -->
-    <item name="closeIcon">@color/colorSecondaryText</item>
-    <!-- Search button icon -->
-    <item name="searchIcon">@color/colorSecondaryText</item>
-    <!-- Go/commit button icon -->
-    <item name="goIcon">@color/colorSecondaryText</item>
-    <!-- Voice search button icon -->
-    <item name="voiceIcon">@color/colorSecondaryText</item>
-    <!-- Commit icon shown in the query suggestion row -->
-    <item name="commitIcon">@color/colorSecondaryText</item>
-</style>
+        <!-- Background for the search query section (e.g. EditText)-->
+        <item name="queryBackground">@color/transparent</item>
+        <!-- Background for the actions section (e.g. voice, submit)-->
+        <item name="submitBackground">@color/colorSecondaryText</item>
+        <!-- Close button icon -->
+        <item name="closeIcon">@color/colorSecondaryText</item>
+        <!-- Search button icon -->
+        <item name="searchIcon">@color/colorSecondaryText</item>
+        <!-- Go/commit button icon -->
+        <item name="goIcon">@color/colorSecondaryText</item>
+        <!-- Voice search button icon -->
+        <item name="voiceIcon">@color/colorSecondaryText</item>
+        <!-- Commit icon shown in the query suggestion row -->
+        <item name="commitIcon">@color/colorSecondaryText</item>
+    </style>
 
     <style name="commonListItemStyle"></style>
 

@@ -143,4 +143,5 @@
     <string name="in_the_next_seven_days">In the next seven days</string>
     <string name="all_upcoming">All upcoming</string>
     <string name="no_results">No results</string>
+    <string name="title_activity_auth">AuthActivity</string>
 </resources>
